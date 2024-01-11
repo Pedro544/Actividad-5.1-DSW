@@ -1,8 +1,8 @@
 <?php
 include "ElementoSistemaFicheros.php";
-
+include "Fichero.php";
 class Directorio extends ElementoSistemaFicheros {
-	private $elementos;
+	private array $elementos;
 
 	public function __construct(string $nombre, string $permisos = "xxxx--x--")
 	{
@@ -17,16 +17,20 @@ class Directorio extends ElementoSistemaFicheros {
 		} 
 		return false;
 	}
-	
+	//Se imprime la información.
 	public function listar($ruta = ""){
 		if ($ruta == ""){
 			echo $this->toString();
 		} else {
 			$recurso = $this->rutaExiste($ruta);
-			if (!$recurso){
-				echo "La ruta no existe";
+			if ($recurso === false){
+				echo "La ruta al recurso no existe";
+			} else if (is_array($recurso)) {
+				foreach ($recurso as $key => $value) {
+					echo $value->listar() . "\n";
+				}
 			} else {
-				
+				echo $recurso->listar();
 			}
 		}
 	}
@@ -39,16 +43,20 @@ class Directorio extends ElementoSistemaFicheros {
 	public function rutaExiste($ruta)
 	{
 		$componentesRuta = explode("/",$ruta);
-		$nextArray = $this->elementos;
+		$nextPart = $this->elementos;
 		for ($i = 0; $i < sizeof($componentesRuta); $i++){
 			$nextKey = $componentesRuta[$i];
-			if (array_key_exists($nextKey,$nextArray)){
-				$nextArray = $nextArray[$nextKey]->elementos;
+			if (is_array($nextPart) && array_key_exists($nextKey,$nextPart)){
+				if ($nextPart[$nextKey] instanceof Directorio){
+					$nextPart = $nextPart[$nextKey]->elementos;
+				} else {
+					$nextPart = $nextPart[$nextKey];
+				}
 			} else {
 				return false;
 			}
 		}
-		return $nextArray;
+		return $nextPart;
 	}
 }
 ?>

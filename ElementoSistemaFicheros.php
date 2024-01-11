@@ -29,11 +29,13 @@ abstract class ElementoSistemaFicheros {
 	public function setNombre(string $nombre)
 	{
 		$this->nombre = $nombre;
+		$this->guardar();
 	}
 	//Modificador de los permisos.
 	public function setPermisos(string $permisos)
 	{
 		$this->permisos = $permisos;
+		$this->guardar();
 	}
 	//Actualiza fecha y hora.
 	public function guardar()
