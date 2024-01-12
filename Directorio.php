@@ -10,9 +10,18 @@ class Directorio extends ElementoSistemaFicheros {
 		$this->elementos = [];
 	}
 	//Se intenta añadir un elemento al directorio. Si existe uno con el mismo nombre, se añade y devuelve true. Si no, hace lo contrario.
-	public function add(ElementoSistemaFicheros $e): bool{
-		if (!array_key_exists($e->nombre,$this->elementos)){
-			$this->elementos[$e->nombre] = $e;
+	public function add(ElementoSistemaFicheros $e, $ruta = ""): bool
+	{
+		if ($ruta != ""){
+			$zona = $this->rutaExiste($ruta);
+			if ($zona === false || !($zona instanceof Directorio)){
+				return false;
+			} 
+		} else {
+			$zona = $this;
+		}
+		if (!array_key_exists($e->nombre,$zona->elementos)){
+			$zona->elementos[$e->nombre] = $e;
 			return true;
 		} 
 		return false;
@@ -25,8 +34,8 @@ class Directorio extends ElementoSistemaFicheros {
 			$recurso = $this->rutaExiste($ruta);
 			if ($recurso === false){
 				echo "La ruta al recurso no existe";
-			} else if (is_array($recurso)) {
-				foreach ($recurso as $key => $value) {
+			} else if ($recurso instanceof Directorio) {
+				foreach ($recurso->elementos as $key => $value) {
 					echo $value->listar() . "\n";
 				}
 			} else {
@@ -34,20 +43,25 @@ class Directorio extends ElementoSistemaFicheros {
 			}
 		}
 	}
+	// public function delete(&$objeto){
+	// 	return array_search($objeto,$this->elementos);
+	// }
 	//Devuelve información del directorio en sí.
 	public function toString(): string
 	{
 		return Directorio::ROOT . "$this->nombre\t$this->permisos\t$this->fechaModificacion\t$this->horaModificacion";
 	}
-	//Si la ruta relativa hacia un recurso lleva hasta el mismo, devuelve los elementos correspondientes a la ruta. Si no lleva a nada, devuelve false.
-	public function rutaExiste($ruta)
+	//Si la ruta relativa hacia un recurso lleva hasta el mismo, devuelve el objeto correspondiente a la ruta. Si no lleva a nada, devuelve false.
+	public function rutaExiste($ruta): mixed
 	{
 		$componentesRuta = explode("/",$ruta);
 		$nextPart = $this->elementos;
-		for ($i = 0; $i < sizeof($componentesRuta); $i++){
-			$nextKey = $componentesRuta[$i];
+		$cont = 0;
+		for ($cont = 0; $cont < sizeof($componentesRuta); $cont++){
+			$nextKey = $componentesRuta[$cont];
 			if (is_array($nextPart) && array_key_exists($nextKey,$nextPart)){
-				if ($nextPart[$nextKey] instanceof Directorio){
+				if ($nextPart[$nextKey] instanceof Directorio){					
+					$aux = $nextPart[$nextKey];
 					$nextPart = $nextPart[$nextKey]->elementos;
 				} else {
 					$nextPart = $nextPart[$nextKey];
@@ -56,7 +70,21 @@ class Directorio extends ElementoSistemaFicheros {
 				return false;
 			}
 		}
-		return $nextPart;
+		if ($nextPart instanceof Fichero){
+			return $nextPart;
+		} else {
+			return $aux;
+		}
 	}
 }
+$directorio3 = new Directorio("directorio3");
+$directorio3->add(new Fichero("fichero.cfg"));
+
+$directorio2 = new Directorio("directorio2");
+$directorio2->add($directorio3);
+$directorio2->add(new Fichero("fichero.txt"));
+$directorio2->add(new Directorio("directorio3"));
+$directorio2->add(new Fichero("ejercicio.java"));
+$directorio1 = new Directorio("directorio1");
+$directorio1->add($directorio2);
 ?>
