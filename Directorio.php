@@ -35,8 +35,10 @@ class Directorio extends ElementoSistemaFicheros {
 			if ($recurso === false){
 				echo "La ruta al recurso no existe";
 			} else if ($recurso instanceof Directorio) {
+				$recurso->listar();
+				echo "\n";
 				foreach ($recurso->elementos as $key => $value) {
-					echo $value->listar() . "\n";
+					echo "\t" . $value->listar() . "\n";
 				}
 			} else {
 				echo $recurso->listar();

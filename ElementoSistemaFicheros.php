@@ -40,8 +40,8 @@ abstract class ElementoSistemaFicheros {
 	//Actualiza fecha y hora.
 	public function guardar()
 	{
-		$this->fechaModificacion = date("dd/mm/yyyy");
-		$this->horaModificacion = date("HH:ii");
+		$this->fechaModificacion = date("d/m/Y");
+		$this->horaModificacion = date("H:i");
 	}
 }
 ?>
